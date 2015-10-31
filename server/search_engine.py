@@ -35,7 +35,6 @@ class SearchEngine(object):
         sset = set()
         result = []
         for artist in requests:
-
             res = self._es.search(index=self._index,
                                   body={
                                       'fields': ['title', 'date', 'place', 'img', 'desc'],
@@ -54,14 +53,6 @@ class SearchEngine(object):
                     sset.add(item['_id'])
 
         return result
-
-    def create_index(self, cfg):
-        name = cfg["index"]
-        if not self._esc.exists(index = name):
-            self._esc.create(index = name, body = cfg["index_settings"])
-
-    def delete_index(self, index):
-        self._esc.delete(index=index)
 
     @staticmethod
     def _get_title(event):
@@ -102,3 +93,13 @@ class SearchEngine(object):
         except Exception as exc:
             logging.warning(str(exc))
             return "No image"
+
+    def create_index(self, cfg):
+        name = cfg["index"]
+        if not self._esc.exists(index = name):
+            self._esc.create(index = name)
+            self._esc.put_mapping(index = name, doc_type='event', body = cfg["index_settings"])
+
+    def delete_index(self, index):
+        self._esc.delete(index=index)
+
