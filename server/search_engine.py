@@ -1,27 +1,42 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from elasticsearch import client, Elasticsearch
 
 class SearchEngine(object):
 
-    def __init__(self):
-        es = Elasticsearch([{'host': "10.25.3.181", 'port': 9200}])
+    def __init__(self, cfg):
+        es = Elasticsearch([{'host': cfg["host"], 'port': cfg["port"]}])
         esClient = client.IndicesClient(es)
         self._es = es
         self._esc = esClient
+        self._index = cfg["index"]
         pass
 
     def load(self, events):
-        for i in events['results']:
-            d = {'title': i['title'], 'date': i['dates'][0]['start'], 'place': i['place']['address'], 'desc' : i['description'], 'img' : i['images'][0]['image']}
-            self._es.index(index='mytemp', doc_type='event', id=i['id'], body=d)
+        for event in events['results']:
+
+            title = self._get_title(event)
+            date = self._get_date(event)
+            place = self._get_place(event)
+            desc = self._get_description(event)
+            img = self._get_image(event)
+
+            data = {'title': title,
+                    'date': date,
+                    'place': place,
+                    'desc' : desc,
+                    'img' : img}
+            #logging.debug("Load to index event {}".format(title.decode("utf-8", "ignore").encode("utf-8")))
+            self._es.index(index=self._index, doc_type='event', id=event['id'], body=data)
 
     def search(self, requests):
         sset = set()
         result = []
         for artist in requests:
 
-            res = self._es.search(index="mytemp",
+            res = self._es.search(index=self._index,
                                   body={
                                       'fields': ['title', 'date', 'place', 'img', 'desc'],
                                       'query': {'match': {'title': '{}'.format(artist)}}
@@ -30,60 +45,60 @@ class SearchEngine(object):
             for item in res['hits']['hits']:
                 if not (item['_id'] in sset):
                     result.append({
-                        'title' : item['fields']['title'][0],
+                        'title': item['fields']['title'][0],
                         'place': item['fields']['place'][0],
-                        'date' : item['fields']['date'][0],
-                        'desc' : item['fields']['desc'][0],
-                        'img' : item['fields']['img'][0]
+                        'date': item['fields']['date'][0],
+                        'desc': item['fields']['desc'][0],
+                        'img': item['fields']['img'][0]
                     })
                     sset.add(item['_id'])
 
         return result
 
-    def create_index(self, name):
-            if not self._esc.exists(index = name):
-                self._esc.create(index = name, body =  {
-                    "settings": {
-                        "analysis": {
-                            "tokenizer":{
-                  "nGram":{
-                    "type": "nGram",
-                    "min_gram": 4,
-                    "max_gram": 20
-                        }
-                    },
-                  "filter": {
-                    "stopwords_ru": {
-                    "type": "stop",
-                    "stopwords": ['а','без','более','бы','был','была','были','было','быть','в','вам','вас','весь','во','вот','все','всего','всех','вы','где','да','даже','для','до','его','ее','если','есть','еще','же','за','здесь','и','из','или','им','их','к','как','ко','когда','кто','ли','либо','мне','может','мы','на','надо','наш','не','него','нее','нет','ни','них','но','ну','о','об','однако','он','она','они','оно','от','очень','по','под','при','с','со','так','также','такой','там','те','тем','то','того','тоже','той','только','том','ты','у','уже','хотя','чего','чей','чем','что','чтобы','чье','чья','эта','эти','это','я'],
-                    "ignore_case": "true"
-                    },
-                  "custom_word_delimiter": {
-                    "type": "word_delimiter",
-                    # "PowerShot" ⇒ "Power" "Shot", части одного слова становятся отдельными токенами
-                    "generate_word_parts": "true",
-                    "generate_number_parts": "true",  # "500-42" ⇒ "500" "42"
-                    "catenate_words": "true",  # "wi-fi" ⇒ "wifi"
-                    "catenate_numbers": "false",  # "500-42" ⇒ "50042"
-                    "catenate_all": "true",  # "wi-fi-4000" ⇒ "wifi4000"
-                    "split_on_case_change": "true",  # "PowerShot" ⇒ "Power" "Shot"
-                    "preserve_original": "true",  # "500-42" ⇒ "500-42" "500" "42"
-                    "split_on_numerics": "false"  # "j2se" ⇒ "j" "2" "se"
-                  }
-            },
-                "analyzer": {
-                    "russian": {
-                      "tokenizer":  "nGram",
-                      "filter": [
-                          "custom_word_delimiter",
-                          "stopwords_ru"
-                      ]
-                    }
-                }
-                }
-              }
-            }
-            )
+    def create_index(self, cfg):
+        name = cfg["index"]
+        if not self._esc.exists(index = name):
+            self._esc.create(index = name, body = cfg["index_settings"])
 
-    def delete_indexes(self):
-        self._esc.delete(index = '_all')
+    def delete_index(self, index):
+        self._esc.delete(index=index)
+
+    @staticmethod
+    def _get_title(event):
+        try:
+            return event['title']
+        except Exception as exc:
+            logging.warning(str(exc))
+            return "No title"
+
+    @staticmethod
+    def _get_date(event):
+        try:
+            return event['dates'][0]['start']
+        except Exception as exc:
+            logging.warning(str(exc))
+            return "No date"
+
+    @staticmethod
+    def _get_place(event):
+        try:
+            return event['place']['address']
+        except Exception as exc:
+            logging.warning(str(exc))
+            return "No place"
+
+    @staticmethod
+    def _get_description(event):
+        try:
+            return event['description']
+        except Exception as exc:
+            logging.warning(str(exc))
+            return "No description"
+
+    @staticmethod
+    def _get_image(event):
+        try:
+            return event['images'][0]['image']
+        except Exception as exc:
+            logging.warning(str(exc))
+            return "No image"

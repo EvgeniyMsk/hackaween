@@ -10,18 +10,14 @@ from event_adviser import EventAdviser
 
 class Server(HTTPServer):
 
-    def __init__(self, server_address, handler_class):
-        HTTPServer.__init__(self, server_address, handler_class)
+    def __init__(self, handler_class):
         self.context = Initializer.get_context()
+
+        http_cfg = self.context.get_http_cfg()
+        HTTPServer.__init__(self, (http_cfg["host"], http_cfg["port"]), handler_class)
 
 
 class HttpHandler(BaseHTTPRequestHandler):
-
-        # def do_GET(self):
-        #     self.send_response(200)
-        #     self.send_header('content-type','text/html')
-        #     self.end_headers()
-        #     self.wfile.write("Sanyok pidor")
 
         def do_POST(self):
             self.send_response(200)
@@ -37,9 +33,10 @@ class HttpHandler(BaseHTTPRequestHandler):
             events = {'eventsResponse': advisor.search(top)}
             json.dump(events, self.wfile)
 
+
 if __name__ == '__main__':
     # 10.25.3.181
-    serv = Server(("127.0.0.1", 1025), HttpHandler)
+    serv = Server(HttpHandler)
     try:
         serv.serve_forever()
     except KeyboardInterrupt:
