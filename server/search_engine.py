@@ -3,6 +3,7 @@
 import logging
 
 from elasticsearch import client, Elasticsearch
+import time
 
 class SearchEngine(object):
 
@@ -22,12 +23,14 @@ class SearchEngine(object):
             place = self._get_place(event)
             desc = self._get_description(event)
             img = self._get_image(event)
+            url = self._get_url(event)
 
             data = {'title': title,
                     'date': date,
                     'place': place,
                     'desc' : desc,
-                    'img' : img}
+                    'img' : img,
+                    'url' : url}
             #logging.debug("Load to index event {}".format(title.decode("utf-8", "ignore").encode("utf-8")))
             self._es.index(index=self._index, doc_type='event', id=event['id'], body=data)
 
@@ -39,18 +42,20 @@ class SearchEngine(object):
             try:
                 res = self._es.search(index=self._index,
                                       body={
-                                          'fields': ['title', 'date', 'place', 'img', 'desc'],
+                                          'fields': ['title', 'date', 'place', 'img', 'desc', 'url'],
                                           'query': {'match': {'title': '{}'.format(artist)}}
                                       })
 
                 for item in res['hits']['hits']:
                     if not (item['_id'] in sset):
+                        temp =  item['fields']['desc'][0]
                         result.append({
                             'title': item['fields']['title'][0],
                             'place': item['fields']['place'][0],
-                            'date': item['fields']['date'][0],
-                            'desc': item['fields']['desc'][0],
-                            'img': item['fields']['img'][0]
+                            'date': time.ctime(item['fields']['date'][0]),
+                            'desc': item['fields']['desc'][0][3: len(temp) - 6],
+                            'img': item['fields']['img'][0],
+                            'url': item['fields']['url'][0]
                         })
                         sset.add(item['_id'])
             except Exception as exc:
@@ -85,6 +90,13 @@ class SearchEngine(object):
     def _get_description(event):
         try:
             return event['description']
+        except Exception as exc:
+            logging.warning(str(exc))
+            return "No description"
+    @staticmethod
+    def _get_url(event):
+        try:
+            return event['site_url']
         except Exception as exc:
             logging.warning(str(exc))
             return "No description"
