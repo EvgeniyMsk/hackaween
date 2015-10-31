@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
+from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
 import json
 
@@ -28,30 +28,18 @@ class HttpHandler(BaseHTTPRequestHandler):
             self.end_headers()
             len = int(self.headers['Content-Length'])
             postVars = self.rfile.read(len)
-            tmp = postVars[9700:9810]
             postVars = postVars.decode('utf-8', 'ignore').encode('utf-8')
             music = json.loads(postVars)['musicRequest']
-            top = self._get_top_artists(music, 5)
+
+            top = self.server.context.get_artist_ranker().rank(music, 10)
 
             advisor = EventAdviser(self.server.context.get_se())
             events = {'eventsResponse': advisor.search(top)}
             json.dump(events, self.wfile)
 
-        def _get_top_artists(self, music, top_count):
-            # artists = map(lambda x: x["artist"], music)
-            # uniq_artists = {}
-            # for artist in artists:
-            #     if artist in uniq_artists:
-            #         uniq_artists[artist] += 1
-            #     else:
-            #         uniq_artists[artist] = 1
-            #
-            # sorted_artists = sorted(uniq_artists, key=uniq_artists.get, reverse=True)
-            # return sorted_artists[:top_count]
-            return music
-
 if __name__ == '__main__':
-    serv = Server(("10.25.3.181", 1025), HttpHandler)
+    # 10.25.3.181
+    serv = Server(("127.0.0.1", 1025), HttpHandler)
     try:
         serv.serve_forever()
     except KeyboardInterrupt:
