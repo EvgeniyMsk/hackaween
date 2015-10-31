@@ -20,8 +20,7 @@ class SearchEngine(object):
         sset = set()
         result = []
         for artist in requests:
-
-            res = self._es.search(index="mytemp",
+            res = self._es.search(index="stable",
                                   body={
                                       'fields': ['title', 'date', 'place', 'img', 'desc'],
                                       'query': {'match': {'title': '{}'.format(artist)}}
@@ -42,48 +41,19 @@ class SearchEngine(object):
 
     def create_index(self, name):
             if not self._esc.exists(index = name):
-                self._esc.create(index = name, body =  {
-                    "settings": {
-                        "analysis": {
-                            "tokenizer":{
-                  "nGram":{
-                    "type": "nGram",
-                    "min_gram": 4,
-                    "max_gram": 20
-                        }
-                    },
-                  "filter": {
-                    "stopwords_ru": {
-                    "type": "stop",
-                    "stopwords": ['а','без','более','бы','был','была','были','было','быть','в','вам','вас','весь','во','вот','все','всего','всех','вы','где','да','даже','для','до','его','ее','если','есть','еще','же','за','здесь','и','из','или','им','их','к','как','ко','когда','кто','ли','либо','мне','может','мы','на','надо','наш','не','него','нее','нет','ни','них','но','ну','о','об','однако','он','она','они','оно','от','очень','по','под','при','с','со','так','также','такой','там','те','тем','то','того','тоже','той','только','том','ты','у','уже','хотя','чего','чей','чем','что','чтобы','чье','чья','эта','эти','это','я'],
-                    "ignore_case": "true"
-                    },
-                  "custom_word_delimiter": {
-                    "type": "word_delimiter",
-                    # "PowerShot" ⇒ "Power" "Shot", части одного слова становятся отдельными токенами
-                    "generate_word_parts": "true",
-                    "generate_number_parts": "true",  # "500-42" ⇒ "500" "42"
-                    "catenate_words": "true",  # "wi-fi" ⇒ "wifi"
-                    "catenate_numbers": "false",  # "500-42" ⇒ "50042"
-                    "catenate_all": "true",  # "wi-fi-4000" ⇒ "wifi4000"
-                    "split_on_case_change": "true",  # "PowerShot" ⇒ "Power" "Shot"
-                    "preserve_original": "true",  # "500-42" ⇒ "500-42" "500" "42"
-                    "split_on_numerics": "false"  # "j2se" ⇒ "j" "2" "se"
-                  }
-            },
-                "analyzer": {
-                    "russian": {
-                      "tokenizer":  "nGram",
-                      "filter": [
-                          "custom_word_delimiter",
-                          "stopwords_ru"
-                      ]
-                    }
-                }
-                }
-              }
-            }
-            )
+                self._esc.create('mytemp')
+                entry_mapping = {
+                    'event': {
+                        'properties': {
+                                'date': {'type': 'integer'},
+                                'title': {'type': 'string', "tokenizer" : 'keyword', 'analyzer':"russian"},
+                                'place' : {'type':'string'},
+                                'img' : {'type' : 'string'},
+                                'desc' : {'type' : 'string'}
+                                        }
+                                }
+                            }
+                self._esc.put_mapping(index = 'mytemp', doc_type='event', body = entry_mapping)
 
     def delete_indexes(self):
         self._esc.delete(index = '_all')

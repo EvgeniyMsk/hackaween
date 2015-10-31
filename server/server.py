@@ -31,7 +31,7 @@ class HttpHandler(BaseHTTPRequestHandler):
             postVars = postVars.decode('utf-8', 'ignore').encode('utf-8')
             music = json.loads(postVars)['musicRequest']
 
-            top = self.server.context.get_artist_ranker().rank(music, 10)
+            top = self.server.context.get_artist_ranker().rank(music, 50)
 
             advisor = EventAdviser(self.server.context.get_se())
             events = {'eventsResponse': advisor.search(top)}
@@ -39,7 +39,7 @@ class HttpHandler(BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     # 10.25.3.181
-    serv = Server(("127.0.0.1", 1025), HttpHandler)
+    serv = Server(("10.25.3.181", 1025), HttpHandler)
     try:
         serv.serve_forever()
     except KeyboardInterrupt:
