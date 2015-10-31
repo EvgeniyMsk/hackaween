@@ -13,7 +13,7 @@ class EventLoader(object):
         pass
 
     def load(self):
-        r = requests.get('http://kudago.com/public-api/v1/events/?fields=title,dates,id,place,images,description&page=1&page_size=100&actual_since={}&actual_until={}&location=spb&categories=concert'.format(time.time(), time.time() + 10713600))
+        r = requests.get('http://kudago.com/public-api/v1/events/?fields=title,dates,id,place,images,description&expand=place&page=1&page_size=100&actual_since={}&actual_until={}&location=spb&categories=concert'.format(time.time(), time.time() + 10713600))
         self._se.load(r.json())
 
 

@@ -13,7 +13,7 @@ class SearchEngine(object):
 
     def load(self, events):
         for i in events['results']:
-            d = {'title': i['title'], 'date': i['dates'][0]['start'], 'place': i['place']['id'], 'desc' : i['description'], 'img' : i['images'][0]['image']}
+            d = {'title': i['title'], 'date': i['dates'][0]['start'], 'place': i['place']['address'], 'desc' : i['description'], 'img' : i['images'][0]['image']}
             self._es.index(index='mytemp', doc_type='event', id=i['id'], body=d)
 
     def search(self, requests):
@@ -23,7 +23,7 @@ class SearchEngine(object):
             res = self._es.search(index="mytemp", body={'fields': ['title', 'date', 'place', 'img', 'desc'], 'query': {'match': {'title': '{}'.format(i['artist'])}}})
             for item in res['hits']['hits']:
                 if not (item['_id'] in sset):
-                    result.append({'title' : item['fields']['title'], 'place':item['fields']['place'], 'date' : item['fields']['date'], 'desc' : item['fields']['desc'], 'img' : item['fields']['img']})
+                    result.append({'title' : item['fields']['title'][0], 'place':item['fields']['place'][0], 'date' : item['fields']['date'][0], 'desc' : item['fields']['desc'][0], 'img' : item['fields']['img'][0]})
                     sset.add(item['_id'])
         return result
 
