@@ -5,7 +5,7 @@ from elasticsearch import client, Elasticsearch
 class SearchEngine(object):
 
     def __init__(self):
-        es = Elasticsearch()
+        es = Elasticsearch([{'host': "10.25.3.181", 'port': 9200}])
         esClient = client.IndicesClient(es)
         self._es = es
         self._esc = esClient
@@ -13,17 +13,17 @@ class SearchEngine(object):
 
     def load(self, events):
         for i in events['results']:
-            d = {'title': i['title'], 'date': i['dates'][0]['start']}
+            d = {'title': i['title'], 'date': i['dates'][0]['start'], 'place': i['place']['id'], 'desc' : i['description'], 'img' : i['images'][0]['image']}
             self._es.index(index='mytemp', doc_type='event', id=i['id'], body=d)
 
     def search(self, requests):
         sset = set()
         result = []
         for i in requests:
-            res = self._es.search(index="mytemp", body={'fields': ['title', 'date'], 'query': {'match': {'title': '{}'.format(i['artist'])}}})
+            res = self._es.search(index="mytemp", body={'fields': ['title', 'date', 'place', 'img', 'desc'], 'query': {'match': {'title': '{}'.format(i['artist'])}}})
             for item in res['hits']['hits']:
                 if not (item['_id'] in sset):
-                    result.append({'title' : item['fields']['title'], 'date' : item['fields']['date']})
+                    result.append({'title' : item['fields']['title'], 'place':item['fields']['place'], 'date' : item['fields']['date'], 'desc' : item['fields']['desc'], 'img' : item['fields']['img']})
                     sset.add(item['_id'])
         return result
 

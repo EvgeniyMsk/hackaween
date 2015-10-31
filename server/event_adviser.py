@@ -1,4 +1,4 @@
-__author__ = 'surok'
+# -*- coding: utf-8 -*-
 
 class EventAdviser(object):
 
