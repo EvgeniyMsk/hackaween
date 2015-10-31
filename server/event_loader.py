@@ -6,8 +6,8 @@ import search_engine
 
 class EventLoader(object):
 
-    def __init__(self):
-        self._se = search_engine.SearchEngine()
+    def __init__(self, se):
+        self._se = se
         pass
 
     def load(self):
@@ -15,11 +15,11 @@ class EventLoader(object):
         self._se.load(r.json())
 
 
-if __name__ == "__main__":
-    loader = EventLoader()
-    loader.load()
-    request = [{'artist': "Би-2", 'date': time.time()}]
-    r = loader.search(request)
-    for item in r:
-        print "%s - %s" % (item['title'][0], item['date'][0])
+# if __name__ == "__main__":
+#     loader = EventLoader()
+#     loader.load()
+#     request = [{'artist': "Би-2", 'date': time.time()}]
+#     r = loader.search(request)
+#     for item in r:
+#         print "%s - %s" % (item['title'][0], item['date'][0])
 
