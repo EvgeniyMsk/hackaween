@@ -15,13 +15,11 @@ class EventLoader(object):
         self._se.load(r.json())
 
 
-    def search(self, requests):
-        return self._se.search(requests)
-
-
 if __name__ == "__main__":
     loader = EventLoader()
     loader.load()
-    request = [{'title': "Би-2", 'date': time.time()}]
-    print loader.search(request)
+    request = [{'artist': "Би-2", 'date': time.time()}]
+    r = loader.search(request)
+    for item in r:
+        print "%s - %s" % (item['title'][0], item['date'][0])
 
