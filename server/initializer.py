@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import context
-import search_engine
+
+from search_engine import SearchEngine
+from artist_ranker import ArtistRanker
 
 class Initializer(object):
 
     @staticmethod
     def get_context():
-        se = search_engine.SearchEngine()
-        return context.Context(se)
+        se = SearchEngine()
+        artist_ranker = ArtistRanker()
+        return context.Context(se=se, artist_ranker=artist_ranker)

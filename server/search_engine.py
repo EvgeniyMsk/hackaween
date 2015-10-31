@@ -19,12 +19,25 @@ class SearchEngine(object):
     def search(self, requests):
         sset = set()
         result = []
-        for i in requests:
-            res = self._es.search(index="mytemp", body={'fields': ['title', 'date', 'place', 'img', 'desc'], 'query': {'match': {'title': '{}'.format(i['artist'])}}})
+        for artist in requests:
+
+            res = self._es.search(index="mytemp",
+                                  body={
+                                      'fields': ['title', 'date', 'place', 'img', 'desc'],
+                                      'query': {'match': {'title': '{}'.format(artist)}}
+                                  })
+
             for item in res['hits']['hits']:
                 if not (item['_id'] in sset):
-                    result.append({'title' : item['fields']['title'][0], 'place':item['fields']['place'][0], 'date' : item['fields']['date'][0], 'desc' : item['fields']['desc'][0], 'img' : item['fields']['img'][0]})
+                    result.append({
+                        'title' : item['fields']['title'][0],
+                        'place': item['fields']['place'][0],
+                        'date' : item['fields']['date'][0],
+                        'desc' : item['fields']['desc'][0],
+                        'img' : item['fields']['img'][0]
+                    })
                     sset.add(item['_id'])
+
         return result
 
     def create_index(self, name):
