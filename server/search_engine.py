@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 
 from elasticsearch import client, Elasticsearch
 
 class SearchEngine(object):
+
     def __init__(self):
         es = Elasticsearch()
         esClient = client.IndicesClient(es)
