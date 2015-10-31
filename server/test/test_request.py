@@ -16,15 +16,16 @@ if __name__ == "__main__":
     url = "http://{}:{}".format(http_cfg["host"], http_cfg["port"])
 
     with open("music.json") as fd:
-        music = fd.read().decode("cp1251", "ignore").encode("utf-8", "ignore")
+        music = fd.read()#.decode("cp1251", "ignore").encode("utf-8", "ignore")
 
     request = Request(url, music)
     response = urlopen(request)
     str_response = response.read()
     logging.debug("Response: {}".format(str_response))
     events = json.loads(str_response)
-    for event in events["eventsResponse"]:
-        try:
-            print "title: {}".format(event["title"]).decode("cp1251", "ignore")
-        except Exception as exc:
-            print "ERROR: {}".format(str(exc))
+    print events
+    # for event in events["eventsResponse"]:
+    #     try:
+    #         print "title: {}".format(event["title"]).decode("cp1251", "ignore")
+    #     except Exception as exc:
+    #         print "ERROR: {}".format(str(exc))

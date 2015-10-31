@@ -36,27 +36,27 @@ class SearchEngine(object):
 
     def search(self, requests):
         sset = set()
-        result = []
-        for artist in requests:
+        result = {}
+        for item in requests:
 
             try:
                 res = self._es.search(index=self._index,
                                       body={
                                           'fields': ['title', 'date', 'place', 'img', 'desc', 'url'],
-                                          'query': {'match': {'title': '{}'.format(artist)}}
+                                          'query': {'match': {'title': '{}'.format(item["artist"])}}
                                       })
 
                 for item in res['hits']['hits']:
                     if not (item['_id'] in sset):
                         temp =  item['fields']['desc'][0]
-                        result.append({
-                            'title': item['fields']['title'][0],
-                            'place': item['fields']['place'][0],
-                            'date': time.ctime(item['fields']['date'][0]),
-                            'desc': item['fields']['desc'][0][3: len(temp) - 6],
-                            'img': item['fields']['img'][0],
-                            'url': item['fields']['url'][0]
-                        })
+                        result[item['_id']] = {
+                                'title': item['fields']['title'][0],
+                                'place': item['fields']['place'][0],
+                                'date': time.ctime(item['fields']['date'][0]),
+                                'desc': item['fields']['desc'][0][3: len(temp) - 6],
+                                'img': item['fields']['img'][0],
+                                'url': item['fields']['url'][0]
+                            }
                         sset.add(item['_id'])
             except Exception as exc:
                 logging.error("Error while searching:{}".format(str(exc)))

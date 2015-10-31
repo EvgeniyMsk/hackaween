@@ -27,10 +27,9 @@ class HttpHandler(BaseHTTPRequestHandler):
             postVars = postVars.decode('utf-8', 'ignore').encode('utf-8')
             music = json.loads(postVars)['musicRequest']
 
-            top = self.server.context.get_artist_ranker().rank(music, 50)
-
-            advisor = EventAdviser(self.server.context.get_se())
-            events = {'eventsResponse': advisor.search(top)}
+            context = self.server.context
+            advisor = EventAdviser(context.get_se(), context.get_artist_ranker(), context.get_event_ranker())
+            events = {'eventsResponse': advisor.search(music)}
             json.dump(events, self.wfile)
 
 

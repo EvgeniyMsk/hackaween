@@ -19,7 +19,11 @@ class ArtistRanker(object):
                 uniq_artists[artist] = 1
 
         sorted_artists = sorted(uniq_artists, key=uniq_artists.get, reverse=True)
-        return sorted_artists[:top_count]
+        top = sorted_artists[:top_count]
+        res = []
+        for artist in top:
+            res.append({"artist":artist, "count":uniq_artists[artist]})
+        return res
 
 
 if __name__ == "__main__":

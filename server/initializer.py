@@ -7,6 +7,7 @@ import context
 
 from search_engine import SearchEngine
 from artist_ranker import ArtistRanker
+from event_ranking import EventRanker
 
 class Initializer(object):
 
@@ -20,8 +21,10 @@ class Initializer(object):
 
         se = SearchEngine(es_cfg)
         artist_ranker = ArtistRanker()
+        event_ranker = EventRanker(None)
         return context.Context(se=se,
                                artist_ranker=artist_ranker,
+                               event_ranker=event_ranker,
                                http_cfg=http_cfg,
                                kudago_cfg=kudago_cfg,
                                es_cfg=es_cfg)
