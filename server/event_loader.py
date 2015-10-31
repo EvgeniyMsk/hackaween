@@ -78,7 +78,7 @@ if __name__ == "__main__":
     #loader.http_load()
 
     # load files to index
-    se.delete_index(es_cfg["index"])
+    #se.delete_index(es_cfg["index"])
     se.create_index(es_cfg)
     loader.load()
 
