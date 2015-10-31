@@ -29,7 +29,8 @@ class Initializer(object):
 
     @staticmethod
     def _read_cfg(cfg_name):
-        cfg_dir = "config"
+        cfg_dir = os.path.dirname(os.path.realpath(__file__))
+        cfg_dir = os.path.join(cfg_dir, "config")
         cfg_ext = ".cfg"
         cfg_file = os.path.join(cfg_dir, cfg_name + cfg_ext)
         with open(cfg_file) as fd:
