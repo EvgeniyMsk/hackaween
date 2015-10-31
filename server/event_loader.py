@@ -3,6 +3,8 @@
 import requests
 import time
 import search_engine
+import initializer
+import event_adviser
 
 class EventLoader(object):
 
@@ -15,11 +17,13 @@ class EventLoader(object):
         self._se.load(r.json())
 
 
-# if __name__ == "__main__":
-#     loader = EventLoader()
-#     loader.load()
-#     request = [{'artist': "Би-2", 'date': time.time()}]
-#     r = loader.search(request)
-#     for item in r:
-#         print "%s - %s" % (item['title'][0], item['date'][0])
+if __name__ == "__main__":
+    initil = initializer.Initializer()
+    el = EventLoader(initil.getSE())
+    # el.load()
+    ed = event_adviser.EventAdviser(initil.getSE())
+    request = [{'artist': "Би-2", 'date': time.time()}]
+    r = ed.search(request)
+    for item in r:
+        print "%s - %s" % (item['title'][0], item['date'][0])
 
