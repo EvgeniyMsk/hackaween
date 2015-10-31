@@ -1,11 +1,11 @@
-__author__ = 'surok'
+# -*- coding: utf-8 -*-
 
+import context
 import search_engine
 
 class Initializer(object):
 
-    def __init__(self):
-        self._se = search_engine.SearchEngine()
-
-    def getSE(self):
-        return self._se
+    @staticmethod
+    def get_context():
+        se = search_engine.SearchEngine()
+        return context.Context(se)
