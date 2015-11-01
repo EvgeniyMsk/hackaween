@@ -75,7 +75,7 @@ if __name__ == "__main__":
     loader = EventLoader(se, kudago_cfg)
 
     # update from kudago
-    #loader.http_load()
+    loader.http_load()
 
     # load files to index
     se.delete_index(es_cfg["index"])

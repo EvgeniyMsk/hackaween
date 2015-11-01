@@ -59,7 +59,9 @@ class SearchEngine(object):
                                 'date': time.ctime(item['fields']['date'][0]),
                                 'desc': item['fields']['desc'][0][3: len(temp) - 6],
                                 'img': item['fields']['img'][0],
-                                'url': item['fields']['url'][0]
+                                'url': item['fields']['url'][0],
+                                'fav_count' :item['fields']['fav_count'][0],
+                                'com_count' :item['fields']['com_count'][0]
                             }
                         sset.add(item['_id'])
             except Exception as exc:
