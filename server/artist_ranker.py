@@ -1,10 +1,10 @@
-
+import operator
 
 
 class ArtistRanker(object):
 
-    def __init__(self):
-        pass
+    def __init__(self, ranking_cfg):
+        self._min_count = ranking_cfg["min_artist_count"]
 
     def rank(self, music, top_count):
         return self._get_top_artists(music, top_count)
@@ -18,11 +18,11 @@ class ArtistRanker(object):
             else:
                 uniq_artists[artist] = 1
 
-        sorted_artists = sorted(uniq_artists, key=uniq_artists.get, reverse=True)
-        top = sorted_artists[:top_count]
+        sorted_artists = sorted(uniq_artists.items(), key=operator.itemgetter(1), reverse=True)
+        top = filter(lambda x: x[1] >= self._min_count, sorted_artists) #sorted_artists[:top_count]
         res = []
-        for artist in top:
-            res.append({"artist":artist, "count":uniq_artists[artist]})
+        for artist, count in top:
+            res.append({"artist":artist, "count":count})
         return res
 
 
