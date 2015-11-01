@@ -3,6 +3,10 @@ import numpy as np
 class EventRanker(object):
 
     def __init__(self, ranking_cfg):
+        self._events_count = ranking_cfg["events_count"]
+        self._alpha = ranking_cfg["artist_count_coef"]
+        self._beta = ranking_cfg["favorites_coef"]
+        self._gamma = ranking_cfg["comments_coef"]
         pass
 
     def rank(self, events, artists):
@@ -26,7 +30,7 @@ class EventRanker(object):
         res = []
         for id in sorted_ids:
             res.append(events[id])
-        return res
+        return res[:self._events_count]
 
 
 

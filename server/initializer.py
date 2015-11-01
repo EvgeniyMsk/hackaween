@@ -17,11 +17,12 @@ class Initializer(object):
         srv_cfg = Initializer._read_cfg("server")
         http_cfg = srv_cfg["http"]
         kudago_cfg = srv_cfg["kudago"]
+        ranking_cfg = srv_cfg["ranking"]
         es_cfg = Initializer._read_cfg("elasticsearch")
 
         se = SearchEngine(es_cfg)
-        artist_ranker = ArtistRanker()
-        event_ranker = EventRanker(None)
+        artist_ranker = ArtistRanker(ranking_cfg)
+        event_ranker = EventRanker(ranking_cfg)
         return context.Context(se=se,
                                artist_ranker=artist_ranker,
                                event_ranker=event_ranker,
