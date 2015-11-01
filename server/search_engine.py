@@ -24,13 +24,17 @@ class SearchEngine(object):
             desc = self._get_description(event)
             img = self._get_image(event)
             url = self._get_url(event)
+            fav_count = self._get_fav_count(event)
+            com_count = self._get_com_count(event)
 
             data = {'title': title,
                     'date': date,
                     'place': place,
                     'desc' : desc,
                     'img' : img,
-                    'url' : url}
+                    'url' : url,
+                    'fav_count' : fav_count,
+                    'com_count' : com_count}
             #logging.debug("Load to index event {}".format(title.decode("utf-8", "ignore").encode("utf-8")))
             self._es.index(index=self._index, doc_type='event', id=event['id'], body=data)
 
@@ -42,7 +46,7 @@ class SearchEngine(object):
             try:
                 res = self._es.search(index=self._index,
                                       body={
-                                          'fields': ['title', 'date', 'place', 'img', 'desc', 'url'],
+                                          'fields': ['title', 'date', 'place', 'img', 'desc', 'url', 'fav_count', 'com_count'],
                                           'query': {'match': {'title': '{}'.format(item["artist"])}}
                                       })
 
@@ -69,6 +73,22 @@ class SearchEngine(object):
         except Exception as exc:
             logging.warning(str(exc))
             return "No title"
+
+    @staticmethod
+    def _get_fav_count(event):
+        try:
+            return event['favorites_count']
+        except Exception as exc:
+            logging.warning(str(exc))
+            return "No fav_count"
+
+    @staticmethod
+    def _get_com_count(event):
+        try:
+            return event['comments_count']
+        except Exception as exc:
+            logging.warning(str(exc))
+            return "No com_count"
 
     @staticmethod
     def _get_date(event):
