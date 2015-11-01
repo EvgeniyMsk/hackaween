@@ -44,10 +44,11 @@ class SearchEngine(object):
         for item in requests:
 
             try:
+                # temp = ' AND '.join(item['artist'].split())
                 res = self._es.search(index=self._index,
                                       body={
                                           'fields': ['title', 'date', 'place', 'img', 'desc', 'url', 'fav_count', 'com_count'],
-                                          'query': {'match': {'title': '{}'.format(item["artist"])}}
+                                          'query': {'match_phrase': {'title': '{}'.format(item['artist'])}}
                                       })
 
                 for item in res['hits']['hits']:
