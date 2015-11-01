@@ -42,7 +42,6 @@ if __name__ == "__main__":
                 result.append({'title' : item['fields']['title'], 'date' : item['fields']['date']})
                 sset.add(item['_id'])
 
-    print 'Sanyok pidor'
     print result.__len__()
     for item in result :
         print "%s - %s" % (item['title'][0], item['date'][0])
